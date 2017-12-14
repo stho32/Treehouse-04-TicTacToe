@@ -8,7 +8,7 @@ The folder "Provided-Files" contains the files like teamtreehouse provided them 
 
 You might also be interested in my [notes](Documentation/Notes.md) where I share my thoughts about why I chose one way of solution over another. 
 
-Click [here](https://stho32.github.io/Treehouse-TicTacToe/Source/index.html) to review the resulting page.
+Click [here](https://stho32.github.io/Treehouse-04-TicTacToe/Source/index.html) to review the resulting page.
 
 In a nutshell, this project is about creating a tic-tac-toe game. A game that shall be playable
 against another person on the computer or a computer agent. Treehouse provided a few links and 
