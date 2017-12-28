@@ -4,6 +4,9 @@
     github/stho32
 */
 
+
+// "use strict"
+
 const $startScreen = $("#start");
 const $startScreenButton = $("#screen-start-button");
 const $board = $("#board");
@@ -24,7 +27,7 @@ StartupScreenInteraction();
 /* The Player class encapsulates the interaction 
    between player state and UI.
 */
-function Player(id, sign) {
+function Player(id, sign, playerType) {
     // display of currently active player
     let $headerSign = $("#player" + id);
     // is this player instance active at the moment?
@@ -39,7 +42,8 @@ function Player(id, sign) {
     let publicApi = {
         Id: id,
         Sign: sign,
-        PlayerSignCssClass : playerSignCssClass
+        PlayerSignCssClass : playerSignCssClass,
+        PlayerType : playerType
     };
 
     /* Activate and deactivate player 
@@ -54,82 +58,126 @@ function Player(id, sign) {
 
             $headerSign.toggleClass("active");
 
-            $board.find(".box:not(.box-filled-1):not(.box-filled-2)").toggleClass(boxEmptyCssClass, isActive);
+            // remove all hover effects for this player
+            $board.find("." + boxEmptyCssClass).removeClass(boxEmptyCssClass);
+            // activate hover effect if needed
+            if ( isActive ) {
+               $board.find(".box:not(.box-filled-1):not(.box-filled-2)").addClass(boxEmptyCssClass);
+            }
         }
     };
 
     return publicApi;
 }
 
+/* This is how a human player makes a move. */
+function HumanPlayerInteraction(player, gameboard) {
+    let emptyBoxes = gameboard.GetEmptyBoxes();
+
+    // 1. activate empty box event handlers
+    // 2. wait for user to make a click
+    emptyBoxes.on("click", (event) => {
+        let $box = $(event.target);
+
+        let row = $box.data("row");
+        let column = $box.data("column");
+
+        // 3. place sign
+        gameboard.PlaceSignAtPosition(row, column);
+
+        // 4. give control back to the gameboard ("next player")
+        emptyBoxes.off("click");
+        gameboard.NextPlayer();
+    })
+}
+
+/* This is how a computer player makes a move. */
+function ComputerPlayerInteraction(player, gameboard) {
+    // 1. activate some animation that tells the user to wait
+    // 2. calculate and think
+    // 3. place sign
+    // 4. give control back to the gameboard ("next player")
+}
+
+/* "make a move" */
+function ExecutePlayerInteraction(player, gameboard) {
+
+    if ( player.PlayerType === "human" )    return HumanPlayerInteraction(player, gameboard);
+    if ( player.PlayerType === "computer" ) return ComputerPlayerInteraction(player, gameboard);
+
+    alert("I do not know what player type " + player.PlayerType + " is. I do not know how to let it interact properly. Please add amazing source code to me to solve the problem.");
+}
+
+
 /* The Gameboard: Two players & game state
    as well as UI interaction.
 */
 function Gameboard() {
-
-    let playerO = Player(1, "O");
-    let playerX = Player(2, "X");
-
-    let activePlayer = playerO;
+    /* I declare everything that can be called and used from outside
+       as "publicApi". This way I can not only return it to the main 
+       thread, I can pass it to dependencies, too. 
+       I need that ability to separate PlayerInteractions with the board
+       into there on "class-resembling"-functions.
+    */    
+    let publicApi = {};
+    publicApi.PlayerO = Player(1, "O", "human");
+    publicApi.PlayerX = Player(2, "X", "human");
+    publicApi.ActivePlayer = publicApi.PlayerO;
+    /* --- */
     
     /* Activate the "activePlayer", deactivate the other one */
     function performPlayerActivation() {
-        playerO.setActive(activePlayer.Sign === "O");
-        playerX.setActive(activePlayer.Sign === "X");
+        publicApi.PlayerO.setActive(publicApi.ActivePlayer.Sign === "O");
+        publicApi.PlayerX.setActive(publicApi.ActivePlayer.Sign === "X");
+
+        ExecutePlayerInteraction(publicApi.ActivePlayer, publicApi);
     }
+
+    /* Activate the next player .. */
+    publicApi.NextPlayer = () => {
+        if (publicApi.ActivePlayer.Sign === "X") {
+            publicApi.ActivePlayer = publicApi.PlayerO;
+        } else {
+            publicApi.ActivePlayer = publicApi.PlayerX;
+        }
+
+        performPlayerActivation();
+    };
 
     /* Place the sign of the currently active player 
        at the given position. 
     */
-    function placeSignAtPosition(row, column) {
+    publicApi.PlaceSignAtPosition = (row, column) => {
         let boxes = $board.find(".box");
         let position = 3*(row-1) + (column-1); 
-        $(boxes[position]).addClass(activePlayer.PlayerSignCssClass);
-    }
+        $(boxes[position]).addClass(publicApi.ActivePlayer.PlayerSignCssClass);
+    };
 
     /* Clear the board */
-    function clear() {
+    publicApi.Clear = () => {
         let boxes = $board.find(".box");
         boxes.each((index, box) => {
-            $(box).removeClass(playerO.PlayerSignCssClass);
-            $(box).removeClass(playerX.PlayerSignCssClass);
+            $(box).removeClass(publicApi.PlayerO.PlayerSignCssClass);
+            $(box).removeClass(publicApi.PlayerX.PlayerSignCssClass);
         });
 
         // Reset to default player
-        activePlayer = playerO;
+        publicApi.ActivePlayer = publicApi.PlayerO;
         performPlayerActivation();
     }
 
+    /* Get all boxes that are not assigned yet */
+    publicApi.GetEmptyBoxes = () => {
+        return $board.find(".box:not(.box-filled-1):not(.box-filled-2)");
+    }
+
     /* Bootstrapping of the gameboard */
-    clear();
+    publicApi.Clear();
 
     /* ---- */
 
-    return {
-        playerO : playerO,
-        playerX : playerX,
-
-        /* Select the next player */
-        nextPlayer : () => {
-            if (activePlayer.Sign === "X") {
-                activePlayer = playerO;
-            } else {
-                activePlayer = playerX;
-            }
-
-            performPlayerActivation();
-        },
-
-        /* Place the sign of the currently active player
-           at position (row, column). */
-        placeSignAtPosition : placeSignAtPosition,
-
-        /* Clear the board */
-        clear : clear
-    }
+    return publicApi;
 }
 
 let gameboard = Gameboard();
-gameboard.placeSignAtPosition(1,1);
-gameboard.placeSignAtPosition(2,2);
-gameboard.placeSignAtPosition(3,3);
-gameboard.nextPlayer();
+
