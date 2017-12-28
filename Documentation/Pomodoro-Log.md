@@ -7,3 +7,5 @@
 1. Css experiments have been converted into proper classes, the player class now makes sure that the hover effect matches the active player, the new class "Gameboard" contains the first interactions on game level
 1. I want to enable human and computer players... structuring source code... players now know if they are human or computers...
 1. full human interaction now works, even with a few bug fixes for visual styles
+1. lost control a bit.. 
+1. now I can detect wins and ties, tell who won and stuff. 

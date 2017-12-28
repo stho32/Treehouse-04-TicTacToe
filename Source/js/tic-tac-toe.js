@@ -42,8 +42,8 @@ function Player(id, sign, playerType) {
     let publicApi = {
         Id: id,
         Sign: sign,
-        PlayerSignCssClass : playerSignCssClass,
-        PlayerType : playerType
+        PlayerSignCssClass: playerSignCssClass,
+        PlayerType: playerType
     };
 
     /* Activate and deactivate player 
@@ -61,8 +61,8 @@ function Player(id, sign, playerType) {
             // remove all hover effects for this player
             $board.find("." + boxEmptyCssClass).removeClass(boxEmptyCssClass);
             // activate hover effect if needed
-            if ( isActive ) {
-               $board.find(".box:not(.box-filled-1):not(.box-filled-2)").addClass(boxEmptyCssClass);
+            if (isActive) {
+                $board.find(".box:not(.box-filled-1):not(.box-filled-2)").addClass(boxEmptyCssClass);
             }
         }
     };
@@ -85,10 +85,10 @@ function HumanPlayerInteraction(player, gameboard) {
         // 3. place sign
         gameboard.PlaceSignAtPosition(row, column);
 
-        // 4. give control back to the gameboard ("next player")
+        // 4. give control back to the gameboard 
         emptyBoxes.off("click");
-        gameboard.NextPlayer();
-    })
+        gameboard.ContinueGameplay();
+    });
 }
 
 /* This is how a computer player makes a move. */
@@ -102,8 +102,8 @@ function ComputerPlayerInteraction(player, gameboard) {
 /* "make a move" */
 function ExecutePlayerInteraction(player, gameboard) {
 
-    if ( player.PlayerType === "human" )    return HumanPlayerInteraction(player, gameboard);
-    if ( player.PlayerType === "computer" ) return ComputerPlayerInteraction(player, gameboard);
+    if (player.PlayerType === "human") return HumanPlayerInteraction(player, gameboard);
+    if (player.PlayerType === "computer") return ComputerPlayerInteraction(player, gameboard);
 
     alert("I do not know what player type " + player.PlayerType + " is. I do not know how to let it interact properly. Please add amazing source code to me to solve the problem.");
 }
@@ -118,19 +118,40 @@ function Gameboard() {
        thread, I can pass it to dependencies, too. 
        I need that ability to separate PlayerInteractions with the board
        into there on "class-resembling"-functions.
-    */    
+    */
     let publicApi = {};
     publicApi.PlayerO = Player(1, "O", "human");
     publicApi.PlayerX = Player(2, "X", "human");
     publicApi.ActivePlayer = publicApi.PlayerO;
     /* --- */
-    
+
     /* Activate the "activePlayer", deactivate the other one */
     function performPlayerActivation() {
         publicApi.PlayerO.setActive(publicApi.ActivePlayer.Sign === "O");
         publicApi.PlayerX.setActive(publicApi.ActivePlayer.Sign === "X");
 
         ExecutePlayerInteraction(publicApi.ActivePlayer, publicApi);
+    }
+
+    /* External components (player interaction models) use this
+       function to continue with the rest of the game flow.
+    */
+    publicApi.ContinueGameplay = () => {
+        /* Do we have a winner? */
+        let winner = publicApi.WhoIsTheWinner();
+
+        if (winner !== false) {
+            alert(winner.Sign + " has won!");
+            return;
+        } 
+
+        if (publicApi.AreAllBoxesFilled()) {
+            alert("tie!");
+            return;
+        }
+
+        /* No? Then continue with the next player... */
+        publicApi.NextPlayer();
     }
 
     /* Activate the next player .. */
@@ -149,7 +170,7 @@ function Gameboard() {
     */
     publicApi.PlaceSignAtPosition = (row, column) => {
         let boxes = $board.find(".box");
-        let position = 3*(row-1) + (column-1); 
+        let position = 3 * (row - 1) + (column - 1);
         $(boxes[position]).addClass(publicApi.ActivePlayer.PlayerSignCssClass);
     };
 
@@ -170,6 +191,61 @@ function Gameboard() {
     publicApi.GetEmptyBoxes = () => {
         return $board.find(".box:not(.box-filled-1):not(.box-filled-2)");
     }
+
+    /* Find out if all boxes are filled. */
+    publicApi.AreAllBoxesFilled = () => {
+        return publicApi.GetEmptyBoxes().length === 0;
+    };
+
+
+    /* Uses a list of coordinates to validate, if there is a 
+       specific css class in this box. Using this function
+       we can check if and what part of the winning conditions
+       is fulfilled. */
+    function IsBoxSetComplete(boxCoordinates, expectedCssClass) {
+        let complete = true;
+        let boxes = $board.find(".box");
+
+        boxCoordinates.forEach(coordinate => {
+            let coordinateAsIndex = (coordinate.row-1) * 3 + (coordinate.column-1);
+            complete = complete && $(boxes[coordinateAsIndex]).hasClass(expectedCssClass);
+        });
+
+        return complete;
+    }
+
+    /* Detect if the given player has won. */
+    function playerHasWon(player) {
+        let signCssClass = player.PlayerSignCssClass;
+
+        // the 3 rows
+        if (IsBoxSetComplete([{ row: 1, column: 1 }, { row: 1, column: 2 }, { row: 1, column: 3 }], signCssClass)) return true;
+        if (IsBoxSetComplete([{ row: 2, column: 1 }, { row: 2, column: 2 }, { row: 2, column: 3 }], signCssClass)) return true;
+        if (IsBoxSetComplete([{ row: 3, column: 1 }, { row: 3, column: 2 }, { row: 3, column: 3 }], signCssClass)) return true;
+
+        // the 3 columns
+        if (IsBoxSetComplete([{ row: 1, column: 1 }, { row: 2, column: 1 }, { row: 3, column: 1 }], signCssClass)) return true;
+        if (IsBoxSetComplete([{ row: 1, column: 2 }, { row: 2, column: 2 }, { row: 3, column: 2 }], signCssClass)) return true;
+        if (IsBoxSetComplete([{ row: 1, column: 3 }, { row: 2, column: 3 }, { row: 3, column: 3 }], signCssClass)) return true;
+
+        // the 2 diagonals
+        if (IsBoxSetComplete([{ row: 1, column: 1 }, { row: 2, column: 2 }, { row: 3, column: 3 }], signCssClass)) return true;
+        if (IsBoxSetComplete([{ row: 1, column: 3 }, { row: 2, column: 2 }, { row: 3, column: 1 }], signCssClass)) return true;
+
+        return false;
+    }
+
+    /* Find out if the "win" condition is met and if, for whom. 
+       @returns: the winner or false
+    */
+    publicApi.WhoIsTheWinner = () => {
+
+        if (playerHasWon(publicApi.PlayerX)) return publicApi.PlayerX;
+        if (playerHasWon(publicApi.PlayerO)) return publicApi.PlayerO;
+
+        return false;
+    };
+
 
     /* Bootstrapping of the gameboard */
     publicApi.Clear();
