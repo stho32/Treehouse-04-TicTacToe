@@ -202,14 +202,12 @@ h1 {
     background-image: url(../img/x.svg);
 }
 
-.box:not(.box-filled-1):not(.box-filled-2):hover  {
-  background-color: rgba(255,160,0,0.2);
-  background-image: url(../img/o.svg);
+.box--empty-O:hover {
+    background-color: rgba(255,160,0,0.2);
+    background-image: url(../img/o.svg);
 }
 
-/*
-.box:not(.box-filled-1):not(.box-filled-2):hover  {
-  background-color: rgba(54,136,195,0.2);
-  background-image: url(../img/x.svg);
+.box--empty-X:hover {
+    background-color: rgba(54,136,195,0.2);
+    background-image: url(../img/x.svg);
 }
-*/
