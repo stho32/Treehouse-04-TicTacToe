@@ -68,6 +68,7 @@ function Gameboard() {
 
     let playerO = Player(1, "O");
     let playerX = Player(2, "X");
+
     let activePlayer = playerO;
     
     /* Activate the "activePlayer", deactivate the other one */
@@ -81,9 +82,27 @@ function Gameboard() {
     */
     function placeSignAtPosition(row, column) {
         let boxes = $board.find(".box");
-        let position = 3*(row-1) + column; 
+        let position = 3*(row-1) + (column-1); 
         $(boxes[position]).addClass(activePlayer.PlayerSignCssClass);
     }
+
+    /* Clear the board */
+    function clear() {
+        let boxes = $board.find(".box");
+        boxes.each((index, box) => {
+            $(box).removeClass(playerO.PlayerSignCssClass);
+            $(box).removeClass(playerX.PlayerSignCssClass);
+        });
+
+        // Reset to default player
+        activePlayer = playerO;
+        performPlayerActivation();
+    }
+
+    /* Bootstrapping of the gameboard */
+    clear();
+
+    /* ---- */
 
     return {
         playerO : playerO,
@@ -102,9 +121,15 @@ function Gameboard() {
 
         /* Place the sign of the currently active player
            at position (row, column). */
-        placeSignAtPosition : placeSignAtPosition
-    }
+        placeSignAtPosition : placeSignAtPosition,
 
+        /* Clear the board */
+        clear : clear
+    }
 }
 
 let gameboard = Gameboard();
+gameboard.placeSignAtPosition(1,1);
+gameboard.placeSignAtPosition(2,2);
+gameboard.placeSignAtPosition(3,3);
+gameboard.nextPlayer();
