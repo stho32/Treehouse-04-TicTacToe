@@ -9,3 +9,4 @@
 1. full human interaction now works, even with a few bug fixes for visual styles
 1. lost control a bit.. 
 1. now I can detect wins and ties, tell who won and stuff. 
+1. Interaction with the final screen
