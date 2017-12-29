@@ -7,27 +7,64 @@
 
 // "use strict"
 
-const $startScreen = $("#start");
-const $startScreenButton = $("#screen-start-button");
 const $board = $("#board");
+const $startScreen = $("#start");
+const $finalScreen = $(".screen-win");
 
-/* (R2) at startup the board is hidden and the start screen is displayed */
-function StartupScreenInteraction() {
-    $board.hide()
-    $startScreen.show();
+function StartScreen() {
+    const $startScreenButton = $("#screen-start-button");
 
-    $startScreenButton.on("click", () => {
-        $startScreen.hide();
-        $board.show();
-    });
+    /* (R2) at startup the board is hidden and the start screen is displayed */
+    function StartupScreenInteraction() {
+        $board.hide()
+        $finalScreen.hide();
+        $startScreen.show();
+
+        $startScreenButton.on("click", () => {
+            $startScreen.hide();
+            $finalScreen.hide();
+            $board.show();
+        });
+    }
+
+    return {
+        Show : () => {
+            StartupScreenInteraction();
+        }
+    }
 }
 
-StartupScreenInteraction();
+function FinalScreen(gameboard) {
+
+    function show(text, winnerCssClass) {
+        $board.hide();
+        $startScreen.hide();
+        $finalScreen.show();
+        $finalScreen.find(".message").text(text);
+        $finalScreen.addClass(winnerCssClass);
+
+        $finalScreen.find(".button").on("click", () => {
+            // Start new game
+            gameboard.Clear();
+
+            $board.show();
+            $startScreen.hide();
+            $finalScreen.hide();
+            $finalScreen.removeClass(winnerCssClass);
+        });
+    }
+
+    return {
+        Show : show
+    }
+
+}
+
 
 /* The Player class encapsulates the interaction 
    between player state and UI.
 */
-function Player(id, sign, playerType) {
+function Player(id, sign, playerType, winCssClass) {
     // display of currently active player
     let $headerSign = $("#player" + id);
     // is this player instance active at the moment?
@@ -43,7 +80,9 @@ function Player(id, sign, playerType) {
         Id: id,
         Sign: sign,
         PlayerSignCssClass: playerSignCssClass,
-        PlayerType: playerType
+        PlayerType: playerType,
+        WinCssClass: winCssClass,
+        HoverEffectCssClass: boxEmptyCssClass
     };
 
     /* Activate and deactivate player 
@@ -120,8 +159,8 @@ function Gameboard() {
        into there on "class-resembling"-functions.
     */
     let publicApi = {};
-    publicApi.PlayerO = Player(1, "O", "human");
-    publicApi.PlayerX = Player(2, "X", "human");
+    publicApi.PlayerO = Player(1, "O", "human", "screen-win-one");
+    publicApi.PlayerX = Player(2, "X", "human", "screen-win-two");
     publicApi.ActivePlayer = publicApi.PlayerO;
     /* --- */
 
@@ -141,12 +180,14 @@ function Gameboard() {
         let winner = publicApi.WhoIsTheWinner();
 
         if (winner !== false) {
-            alert(winner.Sign + " has won!");
+            let finalScreen = FinalScreen(publicApi);
+            finalScreen.Show("Winner", winner.WinCssClass);
             return;
         } 
 
         if (publicApi.AreAllBoxesFilled()) {
-            alert("tie!");
+            let finalScreen = FinalScreen(publicApi);
+            finalScreen.Show("It's a Tie!", "screen-win-tie");
             return;
         }
 
@@ -180,9 +221,14 @@ function Gameboard() {
         boxes.each((index, box) => {
             $(box).removeClass(publicApi.PlayerO.PlayerSignCssClass);
             $(box).removeClass(publicApi.PlayerX.PlayerSignCssClass);
+
+            $(box).removeClass(publicApi.PlayerO.HoverEffectCssClass);
+            $(box).removeClass(publicApi.PlayerX.HoverEffectCssClass);
         });
 
         // Reset to default player
+        publicApi.PlayerO.setActive(false);
+        publicApi.PlayerX.setActive(false);
         publicApi.ActivePlayer = publicApi.PlayerO;
         performPlayerActivation();
     }
@@ -199,7 +245,7 @@ function Gameboard() {
 
 
     /* Uses a list of coordinates to validate, if there is a 
-       specific css class in this box. Using this function
+       specific css class in every selected box. Using this function
        we can check if and what part of the winning conditions
        is fulfilled. */
     function IsBoxSetComplete(boxCoordinates, expectedCssClass) {
@@ -255,5 +301,6 @@ function Gameboard() {
     return publicApi;
 }
 
+let startscreen = StartScreen();
 let gameboard = Gameboard();
-
+startscreen.Show();
