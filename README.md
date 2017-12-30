@@ -19,8 +19,7 @@ I try to become better at measuring and guessing time. For an insight into what 
 
 ## About the SceneManager
 
-After coding for some time I had the feeling that I should think again over
-everything, and this is the result:
+After coding for some time I had the feeling that I should refactor a few things. The screens felt like "scenes" to me. So this is what I did :
 
 The start screen, the final screen and the game board are now "Scenes". A scene manager knows them all (they are registered).
 
@@ -35,7 +34,9 @@ Still, using the SceneManager that is available to every scene, every scene can 
 This way, if needed, Scenes can also talk to each other. This is used by the gameboard scene to tell the final scene 
 who the winner is.
 
-## About the Computer Player
+So it's kind of an IoC container.
+
+## About the computer player
 
 I was looking for a specific model that enables the possibility for human and computer players. Without doing too much extra work.
 
@@ -50,3 +51,20 @@ While humans have to click an empty box, computers need to compute.
 The only place that knows which function to call depending on the player type is "ExecutePlayerInteraction".
 
 Funny enough this way I can realize even computer against computer games :).
+
+## About the global variable restrictions of the project as imposed by TeamTreehouse
+
+I respect the need for a low amount of global variables. Believe me, I do. 
+
+Still the requirement to use at maximum 1 global variable in this project put me in the not very comfortable situation to write
+all the code into one file. (Of course I wanted to "not use any global variable".)
+
+Which I believe is another extreme, that one should circumvent. Since the code is multiple hundrets of lines long. 
+I really had loved putting code into multiple files. :)
+
+I found myself scroll around a lot. I'd liked to separate the AI from the rest, and split the scenes into separate files. 
+The opportunity for a few layers would have been nice. 
+
+Unfortunately "max. one global" is a requirement to pass, and I like passing a lot, too.
+
+Just saying.
