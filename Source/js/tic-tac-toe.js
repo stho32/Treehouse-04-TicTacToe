@@ -4,62 +4,148 @@
     github/stho32
 */
 
+/* 
+    Some structural information first: 
+    After coding for some time I had the feeling that I should think again over
+    everything, and this is the result:
+
+    The start screen, the final screen and the game board are now "Scenes".
+    A scene manager knows them all (they are registered).
+
+    And every scene has the ability to access the scene manager. So every 
+    scene can start any other scene, although it does not know what is actually
+    needed to start a specific scene. 
+
+    Of course every scene knows what it should do to start up and shut down.
+
+    This way the scenes are completely separate.
+*/
 
 // "use strict"
 
-const $board = $("#board");
-const $startScreen = $("#start");
-const $finalScreen = $(".screen-win");
+/*
+    This function here is the global scene control. 
+    The scene manager is our IoC container for scenes.
 
-function StartScreen() {
-    const $startScreenButton = $("#screen-start-button");
+    It's a singleton because we only have one...
+*/
+const SceneManager = (function() {
 
-    /* (R2) at startup the board is hidden and the start screen is displayed */
-    function StartupScreenInteraction() {
-        $board.hide()
-        $finalScreen.hide();
-        $startScreen.show();
+    let publicApi = {};
 
-        $startScreenButton.on("click", () => {
-            $startScreen.hide();
-            $finalScreen.hide();
-            $board.show();
-        });
+    let sceneRegistry = [];
+    let currentScene = undefined;
+
+    /* Register a game scene */
+    publicApi.RegisterScene = (scene) => {
+        // Example scene code: 
+        // const StartScene = { Name: "StartScreen", $DomElement : $("#board"), SceneApi : StartScreenScene };
+        sceneRegistry.push(scene);
     }
 
+    /* Activate a specific game scene */
+    publicApi.ShowScene = (sceneName) => {
+        /* Deactivate/Hide the current scene */
+        if ( currentScene !== undefined ) {
+            currentScene.$DomElement.hide();
+        }
+
+        for ( let i = 0; i < sceneRegistry.length; i++ ) {
+            let scene = sceneRegistry[i];
+
+            if ( scene.Name === sceneName ) {
+                /* Activate new current scene */
+                currentScene = scene;
+                /* Start the main function for the scene and pass myself into it, so 
+                   that the scene can control the jump to the next scene. */
+                scene.SceneApi.Run(publicApi);
+
+                return;
+            }
+        }
+
+        alert("The code requested scene "+ scene + " which unfortunately is unknown.");
+    }
+
+    /* In case a scene needs to communicate with another scene
+       it can request to get access to the scenes API. */
+    publicApi.GetSceneApi = (sceneName) => {
+
+        for ( let i = 0; i < sceneRegistry.length; i++ ) {
+            let scene = sceneRegistry[i];
+
+            if ( scene.Name === sceneName ) {
+                return scene.SceneApi;
+            }
+        }
+
+        alert("The code requested scene " + scene + " which unfortunately is unknown.");
+    }
+
+    /* Initialization when all scenes are registered and we are about to start... */
+    publicApi.Initialize = () => {
+        /* Hide all Scenes :) */
+        for ( let i = 0; i < sceneRegistry.length; i++ ) {
+            let scene = sceneRegistry[i];
+            scene.$DomElement.hide();
+        }
+    }
+
+    return publicApi;
+})();
+
+/* ---- Start Screen */
+
+function StartScreenScene() {
+    const $startScreenButton = $("#screen-start-button");
+
     return {
-        Show : () => {
-            StartupScreenInteraction();
+        Run : (sceneManager) => {
+            /* When someone clicks the start button on the start
+               screen we switch to the Gameboard scene. */
+            $startScreenButton.on("click", () => {
+                $startScreenButton.off("click");
+                sceneManager.ShowScene("Gameboard");
+            });
         }
     }
 }
 
-function FinalScreen(gameboard) {
+SceneManager.RegisterScene({ Name: "StartScreen", $DomElement : $("#board"), SceneApi : StartScreenScene() });
 
-    function show(text, winnerCssClass) {
-        $board.hide();
-        $startScreen.hide();
-        $finalScreen.show();
-        $finalScreen.find(".message").text(text);
-        $finalScreen.addClass(winnerCssClass);
+/* ---- Final Screen */
 
-        $finalScreen.find(".button").on("click", () => {
-            // Start new game
-            gameboard.Clear();
-
-            $board.show();
-            $startScreen.hide();
-            $finalScreen.hide();
-            $finalScreen.removeClass(winnerCssClass);
-        });
-    }
+function FinalScreenScene() {
+    const $finalScreen = $(".screen-win");
+    let currentWinnerCssClass = undefined;
 
     return {
-        Show : show
+        SetTextAndCssClass : (text, winnerCssClass) => {
+            $finalScreen.find(".message").text(text);
+
+            if ( currentWinnerCssClass !== undefined ) {
+                $finalScreen.removeClass(currentWinnerCssClass);
+            }
+
+            $finalScreen.addClass(winnerCssClass);
+            currentWinnerCssClass = winnerCssClass;
+        },
+
+        Run : (sceneManager) => {
+            const $button = $finalScreen.find(".button");
+
+            $button.on("click", () => {
+                sceneManager.ShowScene("Gameboard");
+                $button.off("click");
+            });
+        }
     }
 
 }
 
+SceneManager.RegisterScene({ Name: "FinalScreen", $DomElement : $(".screen-win"), SceneApi : FinalScreenScene() });
+
+/* ---- Gameboard Scene */
 
 /* The Player class encapsulates the interaction 
    between player state and UI.
@@ -152,7 +238,13 @@ function ExecutePlayerInteraction(player, gameboard) {
 /* The Gameboard: Two players & game state
    as well as UI interaction.
 */
-function Gameboard() {
+function GameboardScene() {
+    /* Safe place for the scene manager in this very complex scene ... */
+    let SceneManager = undefined;
+
+    /* Main DOM Element */
+    const $board = $("#board");
+
     /* I declare everything that can be called and used from outside
        as "publicApi". This way I can not only return it to the main 
        thread, I can pass it to dependencies, too. 
@@ -180,15 +272,21 @@ function Gameboard() {
         /* Do we have a winner? */
         let winner = publicApi.WhoIsTheWinner();
 
+        let finalScreenScene = SceneManager.GetSceneApi("FinalScreen");
+
         if (winner !== false) {
-            let finalScreen = FinalScreen(publicApi);
-            finalScreen.Show("Winner", winner.WinCssClass);
+
+            finalScreenScene.SetTextAndCssClass("Winner", winner.WinCssClass);
+            SceneManager.ShowScene("FinalScreen");
+
             return;
         } 
 
         if (publicApi.AreAllBoxesFilled()) {
-            let finalScreen = FinalScreen(publicApi);
-            finalScreen.Show("It's a Tie!", "screen-win-tie");
+
+            finalScreenScene.SetTextAndCssClass("It's a Tie!", "screen-win-tie");
+            SceneManager.ShowScene("FinalScreen");
+
             return;
         }
 
@@ -303,13 +401,18 @@ function Gameboard() {
 
 
     /* Bootstrapping of the gameboard */
-    publicApi.Clear();
+    publicApi.Run = (sceneManager) => {
+        SceneManager = sceneManager;
+        publicApi.Clear();
+    }
 
     /* ---- */
 
     return publicApi;
 }
 
-let startscreen = StartScreen();
-let gameboard = Gameboard();
-startscreen.Show();
+SceneManager.RegisterScene({ Name: "Gameboard", $DomElement : $("#board"), SceneApi : GameboardScene() });
+
+/* GO! */
+SceneManager.Initialize();
+SceneManager.ShowScene("StartScreen");
