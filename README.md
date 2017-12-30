@@ -37,7 +37,7 @@ who the winner is.
 
 ## About the Computer Player
 
-I was looking for a specific model that enables the possibility for human and computer players. Without doing to much extra work.
+I was looking for a specific model that enables the possibility for human and computer players. Without doing too much extra work.
 
 The way I solved the problem is that every "Player object" knows if its human or computer. 
 
