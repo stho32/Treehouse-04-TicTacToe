@@ -47,6 +47,7 @@ const SceneManager = (function() {
     publicApi.ShowScene = (sceneName) => {
         /* Deactivate/Hide the current scene */
         if ( currentScene !== undefined ) {
+            console.log("Current scene " + currentScene.Name + " is shut down...");
             currentScene.$DomElement.hide();
         }
 
@@ -54,8 +55,10 @@ const SceneManager = (function() {
             let scene = sceneRegistry[i];
 
             if ( scene.Name === sceneName ) {
+                console.log("Activating scene " + sceneName + "...");
                 /* Activate new current scene */
                 currentScene = scene;
+                currentScene.$DomElement.show();
                 /* Start the main function for the scene and pass myself into it, so 
                    that the scene can control the jump to the next scene. */
                 scene.SceneApi.Run(publicApi);
@@ -104,6 +107,7 @@ function StartScreenScene() {
             /* When someone clicks the start button on the start
                screen we switch to the Gameboard scene. */
             $startScreenButton.on("click", () => {
+                console.log(sceneManager);
                 $startScreenButton.off("click");
                 sceneManager.ShowScene("Gameboard");
             });
@@ -111,7 +115,7 @@ function StartScreenScene() {
     }
 }
 
-SceneManager.RegisterScene({ Name: "StartScreen", $DomElement : $("#board"), SceneApi : StartScreenScene() });
+SceneManager.RegisterScene({ Name: "StartScreen", $DomElement : $("#start"), SceneApi : StartScreenScene() });
 
 /* ---- Final Screen */
 
@@ -143,7 +147,7 @@ function FinalScreenScene() {
 
 }
 
-SceneManager.RegisterScene({ Name: "FinalScreen", $DomElement : $(".screen-win"), SceneApi : FinalScreenScene() });
+SceneManager.RegisterScene({ Name: "FinalScreen", $DomElement : $("#finish"), SceneApi : FinalScreenScene() });
 
 /* ---- Gameboard Scene */
 
@@ -159,6 +163,8 @@ function Player(id, sign, playerType, winCssClass) {
     let boxEmptyCssClass = "box--empty-" + sign;
     // this css class displays the symbol of the player
     let playerSignCssClass = "box-filled-" + id;
+    // maybe I can refactor this later, but at the moment, I need that board reference here... 
+    const $board = $("#board");
 
     /* These functions and properties can 
        be used from outside. */
