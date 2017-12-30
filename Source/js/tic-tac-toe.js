@@ -116,6 +116,8 @@ function HumanPlayerInteraction(player, gameboard) {
     // 1. activate empty box event handlers
     // 2. wait for user to make a click
     emptyBoxes.on("click", (event) => {
+        emptyBoxes.off("click");
+
         let $box = $(event.target);
 
         let row = $box.data("row");
@@ -125,7 +127,6 @@ function HumanPlayerInteraction(player, gameboard) {
         gameboard.PlaceSignAtPosition(row, column);
 
         // 4. give control back to the gameboard 
-        emptyBoxes.off("click");
         gameboard.ContinueGameplay();
     });
 }
@@ -217,13 +218,21 @@ function Gameboard() {
 
     /* Clear the board */
     publicApi.Clear = () => {
+
         let boxes = $board.find(".box");
+
         boxes.each((index, box) => {
+            // Remove all set signs
             $(box).removeClass(publicApi.PlayerO.PlayerSignCssClass);
             $(box).removeClass(publicApi.PlayerX.PlayerSignCssClass);
 
+            // Remove all effects
             $(box).removeClass(publicApi.PlayerO.HoverEffectCssClass);
             $(box).removeClass(publicApi.PlayerX.HoverEffectCssClass);
+
+            // And in case we still have some event handlers
+            // lurking around, shut them down.
+            $(box).off("click");
         });
 
         // Reset to default player
