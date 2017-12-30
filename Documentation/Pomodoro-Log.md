@@ -10,3 +10,4 @@
 1. lost control a bit.. 
 1. now I can detect wins and ties, tell who won and stuff. 
 1. Interaction with the final screen
+1. (01:48 h) Refactored everything with a SceneManager... :) 
