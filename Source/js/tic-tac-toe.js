@@ -4,25 +4,6 @@
     github/stho32
 */
 
-/* 
-    Some structural information first: 
-    After coding for some time I had the feeling that I should think again over
-    everything, and this is the result:
-
-    The start screen, the final screen and the game board are now "Scenes".
-    A scene manager knows them all (they are registered).
-
-    And every scene has the ability to access the scene manager. So every 
-    scene can start any other scene, although it does not know what is actually
-    needed to start a specific scene. 
-
-    Of course every scene knows what it should do to start up and shut down.
-
-    This way the scenes are completely separate.
-*/
-
-// "use strict"
-
 /*
     This function here is the global scene control. 
     The scene manager is our IoC container for scenes.
