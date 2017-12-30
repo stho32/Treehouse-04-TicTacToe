@@ -62,9 +62,9 @@ all the code into one file. (Of course I wanted to "not use any global variable"
 Which I believe is another extreme, that one should circumvent. Since the code is multiple hundrets of lines long. 
 I really had loved putting code into multiple files. :)
 
-I found myself scroll around a lot. I'd liked to separate the AI from the rest, and split the scenes into separate files. 
-The opportunity for a few layers would have been nice. 
+Again "of course" I could have done it the jquery way and have a global that I extend every now and then without creating
+another global. But that would have been a lot ceremony for such a small project.
 
-Unfortunately "max. one global" is a requirement to pass, and I like passing a lot, too.
+So I found myself scroll around a lot.
 
 Just saying.
