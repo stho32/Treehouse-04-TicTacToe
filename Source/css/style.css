@@ -141,11 +141,11 @@ h1 {
     fill: rgba(0, 0, 0, 0.25);
 }
 
-.players:first-child {
+#player1 {
     left: 2.5%;
 }
 
-.players:last-child {
+#player2 {
     right: 2.5%;
 }
 
@@ -165,6 +165,21 @@ h1 {
 #player2.active {
     background: #3688C3;
 }
+
+.player1Name {
+    font-weight: bold;
+    float: left;
+    margin-left: 2.5%;
+    margin-top: 1em;
+}
+
+.player2Name {
+    font-weight: bold;
+    float:right;
+    margin-right: 2.5%;
+    margin-top: 1em;
+}
+
 
 .boxes {
     width: 480px;
@@ -210,4 +225,55 @@ h1 {
 .box--empty-X:hover {
     background-color: rgba(54,136,195,0.2);
     background-image: url(../img/x.svg);
+}
+
+
+.PlayerRegistrations {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 100px;
+    margin-right: 100px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.PlayerRegistration {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin: 20px;
+}
+
+.PlayerRegistration-Label {
+    text-align: left;
+    font-weight: bold;
+}
+
+.PlayerRegistration-Name {
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.PlayerRegistration-PlayerTypeControl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.PlayerRegistration-PlayerType {
+    width: 100%;
+}
+
+.PlayerRegistration-PlayerType input {
+    display:none;
+}
+
+.PlayerRegistration-PlayerType input + label {
+    display: block;
+    font-weight: bold;
+    width: calc(100% -1px);
+    background-color: rgb(72, 185, 106);
+}
+
+.PlayerRegistration-PlayerType input:checked + label {
+    background-color: rgb(185, 183, 72);
+    border: 1px dotted yellow;
 }
