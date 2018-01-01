@@ -11,3 +11,4 @@
 1. now I can detect wins and ties, tell who won and stuff. 
 1. Interaction with the final screen
 1. (01:48 h) Refactored everything with a SceneManager... :) 
+1. (01:32 h) Now the player is asked for a name. Actually you can enter a name for both players _and_ you can tell the game that it is a human or computer player. The information is passed on to the gameboard to be displayed and used in the interaction.
