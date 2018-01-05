@@ -12,3 +12,4 @@
 1. Interaction with the final screen
 1. (01:48 h) Refactored everything with a SceneManager... :) 
 1. (01:32 h) Now the player is asked for a name. Actually you can enter a name for both players _and_ you can tell the game that it is a human or computer player. The information is passed on to the gameboard to be displayed and used in the interaction.
+1. (01:33h) Added new directory "Source-AI", a new small separate space only for the development of the ai containing unit tests as well. Added tests for supportive functions. Basic move-permutation works. The ai does not yet, but so close, so close...
