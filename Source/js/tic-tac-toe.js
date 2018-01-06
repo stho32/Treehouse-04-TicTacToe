@@ -99,7 +99,7 @@
                     let playerType2 = $("#player2TypeHuman").is(":checked")?"human":"computer";
 
                     /* Tell the gameboard about the name and player type selections... */
-                    gameboard = sceneManager.GetSceneApi("Gameboard");
+                    let gameboard = sceneManager.GetSceneApi("Gameboard");
 
                     gameboard.SetPlayer1(playerName1, playerType1);
                     gameboard.SetPlayer2(playerName2, playerType2);
@@ -120,7 +120,7 @@
 
         return {
             SetTextAndCssClass : (text, winnerCssClass, playerName) => {
-                playerText = playerName + " won!";
+                let playerText = playerName + " won!";
                 if ( playerName === undefined || playerName === "" ) {
                     playerText = ""; 
                 }
@@ -255,7 +255,7 @@
         let iAmPlayer = aiPlayerSign;
         // We abort execution when reaching 2 seconds to stay responsive...
         let startTime = 0;
-        let abortAtMs = 2000;
+        let abortAtMs = 15000;
 
         /* We want to return a new string that contains our new
         choosen character at position <index>.
@@ -325,6 +325,7 @@
          *                       Every recursive call changes this value.
          * @param {number} index Set a sign at that position
          * @param {string} player Either X or O, "you are that player at this moment", the sign to be set
+         * @param {number} depth How deep are we into the tree of possibilities?
          * @param {number} firstNextMoveIndex In this method we explore possible options into depth. But when all calculation
          *                                    is done, we do not want to know, that there are final states X and Y but what
          *                                    is the exact next move to some day reach the desired final states.
@@ -332,10 +333,16 @@
          *                                    once upon the time and then remember it. It is the index for the possibleNextMoves
          *                                    array. 
          */
-        function permutation(start, index, player, firstNextMoveIndex) {
+        function permutation(start, index, player, depth, firstNextMoveIndex) {
             // In case we have reached the time limit we stop execution here...
             let now = new Date().getTime();
             if ( (now-startTime) > abortAtMs ) {
+                return;
+            }
+            // On depth 3 we break, we only need to envision a small amount of next moves
+            // Actually, the ai even gets confused if we dig deeper. And then it will not prevent
+            // the winning of the other player correctly.
+            if ( depth === 3 ) {
                 return;
             }
 
@@ -395,7 +402,7 @@
             // to find the next moves and calculate their points.
             for (let i = 0; i < myState.length; i ++) {
                 if ( myState[i] === " " ) {
-                    permutation(myState, i, newPlayer, firstNextMoveIndex);
+                    permutation(myState, i, newPlayer, depth+1, firstNextMoveIndex);
                 }
             }
         };
@@ -404,7 +411,7 @@
             startTime = new Date().getTime();
 
             possibleMovesFromHere = [];
-            permutation(board, undefined, aiPlayerSign, undefined);
+            permutation(board, undefined, aiPlayerSign, 0, undefined);
             return possibleMovesFromHere;
         }
 
@@ -430,26 +437,32 @@
         console.log("Computer moves...");
 
         // 1. activate some animation that tells the user to wait
-        // 2. calculate and think
-        // 2.1 translate the board for the AI
-        let board = gameboard.GetBoardAsString();
-        let ai = AI_CalculateNextSteps(player.Sign);
-        let move = ai.CalculateNextMove(board);
-        // 3. place sign 
-        // We need to translate the position of the AI to the column/row info we need on the 
-        // board. 
-        console.log(move);
-        let row = Math.floor(move.position / 3);
-        let column = move.position - (3*row);
-        row +=1;
-        column +=1;
-        console.log("Row:" + row.toString() + " Col: " + column.toString());
-        gameboard.PlaceSignAtPosition(row, column);
+        let $playerSign = $("#player" + player.Id + " svg");
+        $playerSign.addClass("Computerplayer-Thinking");
 
-        console.log("complete.");
-        // 4. give control back to the gameboard ("next player")
-        // setTimeout helps us to update the UI ("just leave js for a bit and come back") 
-        window.setTimeout(gameboard.ContinueGameplay, 100);
+        window.setTimeout(() => {
+            // 2. calculate and think
+            // 2.1 translate the board for the AI
+            let board = gameboard.GetBoardAsString();
+            let ai = AI_CalculateNextSteps(player.Sign);
+            let move = ai.CalculateNextMove(board);
+            // 3. place sign 
+            // We need to translate the position of the AI to the column/row info we need on the 
+            // board. 
+            console.log(move);
+            let row = Math.floor(move.position / 3);
+            let column = move.position - (3*row);
+            row +=1;
+            column +=1;
+            console.log("Row:" + row.toString() + " Col: " + column.toString());
+            gameboard.PlaceSignAtPosition(row, column);
+
+            console.log("complete.");
+            $playerSign.removeClass("Computerplayer-Thinking");
+            // 4. give control back to the gameboard ("next player")
+            // setTimeout helps us to update the UI ("just leave js for a bit and come back") 
+            window.setTimeout(gameboard.ContinueGameplay, 100);
+        }, 1000);
     }
 
     /* "make a move" */

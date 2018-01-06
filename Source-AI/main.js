@@ -2,6 +2,8 @@
     AI Test Environment
 
     This file is for testing only.
+    Run the tests.html in this path for the unit tests. 
+    The code gets copied into tic-tac-toe.js manually to prevent globals...
 */
 
 /**
@@ -24,20 +26,20 @@ function AI_CalculateNextSteps(aiPlayerSign) {
     let iAmPlayer = aiPlayerSign;
     // We abort execution when reaching 2 seconds to stay responsive...
     let startTime = 0;
-    let abortAtMs = 2000;
+    let abortAtMs = 15000;
 
     /* We want to return a new string that contains our new
-       choosen character at position <index>.
+    choosen character at position <index>.
     */
     function replaceCharX(text, index, newChar) {
         return text.substring(0, index) + newChar + 
-               text.substring(index +1);
+            text.substring(index +1);
     }
     
     publicApi.ReplaceCharX = replaceCharX;
     
     /* Thats how we detect a final state. If there are no 
-       empty places left on a board then its done. */
+    empty places left on a board then its done. */
     function noFurtherEmptyPlaces(text) {
         // if this command does not change the string length then
         // we have no spaces left.
@@ -47,10 +49,10 @@ function AI_CalculateNextSteps(aiPlayerSign) {
     publicApi.NoFurtherEmptyPlaces = noFurtherEmptyPlaces;
 
     /* Even before we hit the possible "all places taken", we might encounter
-       a winning situation. Although there are still whitespaces
-       they are final states.
+    a winning situation. Although there are still whitespaces
+    they are final states.
 
-       @returns {string} X or O or empty string, depending on if a winner is found
+    @returns {string} X or O or empty string, depending on if a winner is found
     */
     function detectWinningSituation(board) {
         function containsOnly(text, sign) {
@@ -86,7 +88,7 @@ function AI_CalculateNextSteps(aiPlayerSign) {
     }
 
     publicApi.DetectWinningSituation = detectWinningSituation;
-     
+    
     /**
      * Permutate the possible moves and outcomes and collect them.
      * 
@@ -94,6 +96,7 @@ function AI_CalculateNextSteps(aiPlayerSign) {
      *                       Every recursive call changes this value.
      * @param {number} index Set a sign at that position
      * @param {string} player Either X or O, "you are that player at this moment", the sign to be set
+     * @param {number} depth How deep are we into the tree of possibilities?
      * @param {number} firstNextMoveIndex In this method we explore possible options into depth. But when all calculation
      *                                    is done, we do not want to know, that there are final states X and Y but what
      *                                    is the exact next move to some day reach the desired final states.
@@ -101,10 +104,16 @@ function AI_CalculateNextSteps(aiPlayerSign) {
      *                                    once upon the time and then remember it. It is the index for the possibleNextMoves
      *                                    array. 
      */
-    function permutation(start, index, player, firstNextMoveIndex) {
+    function permutation(start, index, player, depth, firstNextMoveIndex) {
         // In case we have reached the time limit we stop execution here...
         let now = new Date().getTime();
         if ( (now-startTime) > abortAtMs ) {
+            return;
+        }
+        // On depth 3 we break, we only need to envision a small amount of next moves
+        // Actually, the ai even gets confused if we dig deeper. And then it will not prevent
+        // the winning of the other player correctly.
+        if ( depth === 3 ) {
             return;
         }
 
@@ -148,9 +157,9 @@ function AI_CalculateNextSteps(aiPlayerSign) {
 
         let newPlayer = player;
         /* If we are in the first recursion layer there is no index found yet. 
-           Then we do not want to change the player, as this turn is only for finding
-           the next free spaces. 
-           If we have an index, then the next player is the other player... 
+        Then we do not want to change the player, as this turn is only for finding
+        the next free spaces. 
+        If we have an index, then the next player is the other player... 
         */
         if ( index !== undefined ) {
             if (player === "X") {
@@ -164,7 +173,7 @@ function AI_CalculateNextSteps(aiPlayerSign) {
         // to find the next moves and calculate their points.
         for (let i = 0; i < myState.length; i ++) {
             if ( myState[i] === " " ) {
-                permutation(myState, i, newPlayer, firstNextMoveIndex);
+                permutation(myState, i, newPlayer, depth+1, firstNextMoveIndex);
             }
         }
     };
@@ -173,7 +182,7 @@ function AI_CalculateNextSteps(aiPlayerSign) {
         startTime = new Date().getTime();
 
         possibleMovesFromHere = [];
-        permutation(board, undefined, aiPlayerSign, undefined);
+        permutation(board, undefined, aiPlayerSign, 0, undefined);
         return possibleMovesFromHere;
     }
 
@@ -181,7 +190,7 @@ function AI_CalculateNextSteps(aiPlayerSign) {
         publicApi.CalculatePossibleMoves(board);
 
         /* Sort possible moves by descending points... 
-           "Choose the most winning path." */
+        "Choose the most winning path." */
         possibleMovesFromHere.sort(function(a,b) {
             return b.points - a.points;
         });
