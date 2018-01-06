@@ -226,6 +226,7 @@ function HumanPlayerInteraction(player, gameboard) {
 /** 
  * AI SOURCE CODE --- DEVELOPED AND TESTED in Source-AI folder -------------------------------------
  */
+
 /**
  * This function permutates through the possible next states of the game. 
  * It adds some meta information that we need to choose a nice next move.
@@ -244,6 +245,9 @@ function AI_CalculateNextSteps(aiPlayerSign) {
     let possibleMovesFromHere = [];
     let activePlayer = aiPlayerSign;
     let iAmPlayer = aiPlayerSign;
+    // We abort execution when reaching 2 seconds to stay responsive...
+    let startTime = 0;
+    let abortAtMs = 2000;
 
     /* We want to return a new string that contains our new
        choosen character at position <index>.
@@ -321,6 +325,13 @@ function AI_CalculateNextSteps(aiPlayerSign) {
      *                                    array. 
      */
     function permutation(start, index, player, firstNextMoveIndex) {
+        // In case we have reached the time limit we stop execution here...
+        let now = new Date().getTime();
+        if ( (now-startTime) > abortAtMs ) {
+            return;
+        }
+
+        // permutate ! 
         let myState = start;
 
         if (index !== undefined) {
@@ -382,6 +393,8 @@ function AI_CalculateNextSteps(aiPlayerSign) {
     };
 
     publicApi.CalculatePossibleMoves = function(board) {
+        startTime = new Date().getTime();
+
         possibleMovesFromHere = [];
         permutation(board, undefined, aiPlayerSign, undefined);
         return possibleMovesFromHere;
@@ -406,6 +419,8 @@ function AI_CalculateNextSteps(aiPlayerSign) {
 
 /* This is how a computer player makes a move. */
 function ComputerPlayerInteraction(player, gameboard) {
+    console.log("Computer moves...");
+
     // 1. activate some animation that tells the user to wait
     // 2. calculate and think
     // 2.1 translate the board for the AI
@@ -413,13 +428,17 @@ function ComputerPlayerInteraction(player, gameboard) {
     let ai = AI_CalculateNextSteps(player.Sign);
     let move = ai.CalculateNextMove(board);
     // 3. place sign 
-    // We need to translate the index of the AI to the column/row info we need on the 
+    // We need to translate the position of the AI to the column/row info we need on the 
     // board. 
-    let row = Math.ceil(move.index / 3);
-    let column = move.index - (3*row);
+    console.log(move);
+    let row = Math.floor(move.position / 3);
+    let column = move.position - (3*row);
     row +=1;
     column +=1;
+    console.log("Row:" + row.toString() + " Col: " + column.toString());
     gameboard.PlaceSignAtPosition(row, column);
+
+    console.log("complete.");
     // 4. give control back to the gameboard ("next player")
     gameboard.ContinueGameplay();
 }
