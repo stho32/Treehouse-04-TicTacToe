@@ -77,6 +77,13 @@ h1 {
     position: relative;
 }
 
+.screen-win .smallerMessage {
+    font-size: 2em;
+    font-weight: 500;
+    color: #fff;
+    position: relative;
+}
+
 .screen-win p:before {
     position: absolute;
     left: 0;
