@@ -57,18 +57,4 @@ Funny enough this way I can realize even computer against computer games :).
 
 ## About the global variable restrictions of the project as imposed by TeamTreehouse
 
-I respect the need for a low amount of global variables. Believe me, I do. 
-
-Still the requirement to use at maximum 1 global variable in this project put me in the not very comfortable situation to write
-all the code into one file. (Of course I wanted to "not use any global variable".)
-
-Which I believe is another extreme, that one should circumvent. Since the code is multiple hundrets of lines long. 
-I really had loved putting code into multiple files. :)
-
-Again "of course" I could have done it the jquery way and have a global that I extend every now and then without creating
-another global. But that would have been a lot ceremony for such a small project.
-
-So I found myself scroll around a lot.
-
-Just saying.
-
+I respect the need for a low amount of global variables. Still I had loved to split the code over multiple files to make it more readable...
