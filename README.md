@@ -9,13 +9,16 @@ The folder "Provided-Files" contains the files like teamtreehouse provided them 
 You might also be interested in my [notes](Documentation/Notes.md) where I share my thoughts about why I chose one way of solution over another. 
 
 Click [here](https://stho32.github.io/Treehouse-04-TicTacToe/Source/index.html) to review the resulting page.
+Click [here](https://stho32.github.io/Treehouse-04-TicTacToe/Source-AI/tests.html) to run the ai unit tests.
 
 In a nutshell, this project is about creating a tic-tac-toe game. A game that shall be playable
 against another person on the computer or a computer agent. Treehouse provided a few links and 
 some nice styling and a few awesome UI mockups.
 
 
-I try to become better at measuring and guessing time. For an insight into what I did and how long it took you may have fun looking at my [pomodoro-log](Documentation/Pomodoro-Log.md).
+I try to become better at measuring and guessing time. For an insight into what I did and how long it took you may have fun looking at my [pomodoro-log](Documentation/Pomodoro-Log.md
+
+**Finishing the code according to the requirements took me about 11 hours in total, which I found and spent over a much longer calender time. The AI is not perfect yet, but I like that I may win the game :).**
 
 ## About the SceneManager
 
@@ -68,3 +71,4 @@ another global. But that would have been a lot ceremony for such a small project
 So I found myself scroll around a lot.
 
 Just saying.
+
