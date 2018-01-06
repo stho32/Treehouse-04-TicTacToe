@@ -218,8 +218,9 @@ function HumanPlayerInteraction(player, gameboard) {
         // 3. place sign
         gameboard.PlaceSignAtPosition(row, column);
 
-        // 4. give control back to the gameboard 
-        gameboard.ContinueGameplay();
+        // 4. give control back to the gameboard
+        // setTimeout helps us to update the UI ("just leave js for a bit and come back") 
+        window.setTimeout(gameboard.ContinueGameplay, 100);
     });
 }
 
@@ -440,7 +441,8 @@ function ComputerPlayerInteraction(player, gameboard) {
 
     console.log("complete.");
     // 4. give control back to the gameboard ("next player")
-    gameboard.ContinueGameplay();
+    // setTimeout helps us to update the UI ("just leave js for a bit and come back") 
+    window.setTimeout(gameboard.ContinueGameplay, 100);
 }
 
 /* "make a move" */
