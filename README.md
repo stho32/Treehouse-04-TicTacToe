@@ -16,9 +16,9 @@ against another person on the computer or a computer agent. Treehouse provided a
 some nice styling and a few awesome UI mockups.
 
 
-I try to become better at measuring and guessing time. For an insight into what I did and how long it took you may have fun looking at my [pomodoro-log](Documentation/Pomodoro-Log.md
+I try to become better at measuring and guessing time. For an insight into what I did and how long it took you may have fun looking at my [pomodoro-log](Documentation/Pomodoro-Log.md)
 
-**Finishing the code according to the requirements took me about 11 hours in total, which I found and spent over a much longer calender time. The AI is not perfect yet, but I like that I may win the game :).**
+**Finishing the code according to the requirements took me about 11 hours in total, which I found and spent over a much longer calender time.**
 
 ## About the SceneManager
 
