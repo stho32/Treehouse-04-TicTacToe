@@ -5,7 +5,7 @@ In this project, you'll build a functional, two-person Tic Tac Toe game. You'll 
 You'll use your knowledge of JavaScript data structures like arrays and objects as well as DOM-manipulation using jQuery or plain JavaScript to complete this project.
 
 And, to ensure that you're using good programming practices, you’ll use the module pattern to create your Tic-Tac-Toe game. In other words, you should wrap all of your code in a single global variable, or execute it all in a single self-invoking function. See the link in the project resources for a Treehouse workshop on the module pattern.
- - [ ] (R25) No global variables
+ - [x] (R25) No global variables (actually, there are two, but they are $ and jquery and jquery is allowed...)
 
 
 ## Instructions
