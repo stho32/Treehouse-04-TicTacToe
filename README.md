@@ -58,3 +58,12 @@ Funny enough this way I can realize even computer against computer games :).
 ## About the global variable restrictions of the project as imposed by TeamTreehouse
 
 I respect the need for a low amount of global variables. Still I had loved to split the code over multiple files to make it more readable...
+
+## Post Assessment Refactoring
+
+After being reviewed and since I have my "mark" now, I can do some refactorings that I'd like very much. If you want to go back to the state I got my Review with, you can always do so by visiting the state of the repository at change 44 https://github.com/stho32/Treehouse-04-TicTacToe/tree/711348b28305fab661152d7cc4131c6cc2669658.
+
+ - AI is a separate file now and placed in the source directory. The tests in the Source-AI folder are changed to use that file instead of the now-deleted own copy. The game and the tests use the same file now.
+ - Separated out the SceneManager as an own file, since its not really part of the game logic.
+ 
+
