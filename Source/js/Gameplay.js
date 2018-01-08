@@ -1,10 +1,3 @@
-/*
-    Js Source Code for the TicTacToe Project
-
-    github/stho32
-*/
-
-
 /* The Player class encapsulates the interaction 
 between player state and UI.
 */
@@ -127,8 +120,3 @@ function ExecutePlayerInteraction(player, gameboard) {
 
     alert("I do not know what player type " + player.PlayerType + " is. I do not know how to let it interact properly. Please add amazing source code to me to solve the problem.");
 }
-
-
-/* GO! */
-SceneManager.Initialize();
-SceneManager.ShowScene("StartScreen");
