@@ -1,11 +1,3 @@
-/*
-    AI Test Environment
-
-    This file is for testing only.
-    Run the tests.html in this path for the unit tests. 
-    The code gets copied into tic-tac-toe.js manually to prevent globals...
-*/
-
 /**
  * This function permutates through the possible next states of the game. 
  * It adds some meta information that we need to choose a nice next move.
@@ -200,5 +192,4 @@ function AI_CalculateNextSteps(aiPlayerSign) {
 
     return publicApi;
 }
-
 
